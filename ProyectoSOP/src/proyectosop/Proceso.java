@@ -13,13 +13,30 @@ public class Proceso {
     String nombre;
     int prioridad;
     int tamanio;
+    int tiempo;
 
-    public Proceso(String nombre, int prioridad, int tamanio) {
+    public Proceso(String nombre, int prioridad, int tamanio, int tiempo) {
         this.nombre = nombre;
         this.prioridad = prioridad;
         this.tamanio = tamanio;
+        this.tiempo = tiempo;
+    }
+    
+    public void Imprimir(){
+        System.out.println("Nombre: "+nombre);
+        System.out.println("Prioridad: "+prioridad);
+        System.out.println("tamanio: "+tamanio);
+        System.out.println("tiempo: "+tiempo);
     }
 
+    public int getTiempo() {
+        return tiempo;
+    }
+
+    public void setTiempo(int tiempo) {
+        this.tiempo = tiempo;
+    }
+    
     public String getNombre() {
         return nombre;
     }
