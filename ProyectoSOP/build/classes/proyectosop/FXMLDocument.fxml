@@ -25,7 +25,7 @@
             <Text fx:id="nombreTitulo" strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre Proceso" />
          </items>
       </ToolBar>
-      <GridPane fx:id="procesoEnEjecucion" layoutX="37.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
+      <GridPane fx:id="listaCreados" layoutX="37.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
         <columnConstraints>
           <ColumnConstraints fx:id="enEjecucion" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -42,7 +42,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
-      <GridPane fx:id="procesosEnEspera" layoutX="312.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
+      <GridPane fx:id="procesosEnEspera" layoutX="295.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
@@ -59,7 +59,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
       </GridPane>
-      <GridPane fx:id="pagina" layoutX="561.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
+      <GridPane fx:id="pagina" layoutX="557.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
          <columnConstraints>
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
          </columnConstraints>
@@ -74,6 +74,6 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          </rowConstraints>
       </GridPane>
-      <Button fx:id="Ejecutar" layoutX="312.0" layoutY="442.0" onAction="#ejecutar" prefHeight="25.0" prefWidth="187.0" text="Ejecutar" />
+      <Button fx:id="Ejecutar" layoutX="295.0" layoutY="438.0" onAction="#ejecutar" prefHeight="25.0" prefWidth="187.0" text="Ejecutar" />
     </children>
 </AnchorPane>

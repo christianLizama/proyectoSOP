@@ -25,7 +25,7 @@
             <Text fx:id="nombreTitulo" strokeType="OUTSIDE" strokeWidth="0.0" text="Nombre Proceso" />
          </items>
       </ToolBar>
-      <GridPane fx:id="procesoEnEjecucion" layoutX="37.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
+      <GridPane fx:id="listaCreados" layoutX="37.0" layoutY="102.0" prefHeight="321.0" prefWidth="187.0" style="-fx-grid-lines-visible: true;">
         <columnConstraints>
           <ColumnConstraints fx:id="enEjecucion" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>

@@ -5,6 +5,7 @@
  */
 package proyectosop;
 
+
 /**
  *
  * @author Diego Aguilera
@@ -14,12 +15,26 @@ public class Proceso {
     int prioridad;
     int tamanio;
     int tiempo;
+    int estado;
 
+    public int getEstado() {
+        return estado;
+    }
+
+    public void setEstado(int estado) {
+        this.estado = estado;
+    }
+    
+    public void restarUnTiempo(){
+        tiempo--;
+    }
+    
     public Proceso(String nombre, int prioridad, int tamanio, int tiempo) {
         this.nombre = nombre;
         this.prioridad = prioridad;
         this.tamanio = tamanio;
         this.tiempo = tiempo;
+        estado=0;
     }
     
     public void Imprimir(){
@@ -27,6 +42,7 @@ public class Proceso {
         System.out.println("Prioridad: "+prioridad);
         System.out.println("tamanio: "+tamanio);
         System.out.println("tiempo: "+tiempo);
+        System.out.println("");
     }
 
     public int getTiempo() {
