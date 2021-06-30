@@ -17,7 +17,35 @@ public class ProcesosCreados {
     
     ArrayList<Proceso> procesosCreados = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosEsperando = new ArrayList<Proceso>();
+    ArrayList<Proceso> procesosEspAlta = new ArrayList<Proceso>();
+    ArrayList<Proceso> procesosEspBaja = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosEjecutandose = new ArrayList<Proceso>();
+    ArrayList<Proceso> procesosBorrados = new ArrayList<Proceso>();
+    
+    
+    public ArrayList<Proceso> getProcesosCreados() {
+        return procesosCreados;
+    }
+
+    public void setProcesosCreados(ArrayList<Proceso> procesosCreados) {
+        this.procesosCreados = procesosCreados;
+    }
+
+    public ArrayList<Proceso> getProcesosEsperando() {
+        return procesosEsperando;
+    }
+
+    public void setProcesosEsperando(ArrayList<Proceso> procesosEsperando) {
+        this.procesosEsperando = procesosEsperando;
+    }
+
+    public ArrayList<Proceso> getProcesosEjecutandose() {
+        return procesosEjecutandose;
+    }
+
+    public void setProcesosEjecutandose(ArrayList<Proceso> procesosEjecutandose) {
+        this.procesosEjecutandose = procesosEjecutandose;
+    }
     
     public void ordenar(ArrayList<Proceso> p){
         Collections.sort(p, (Proceso t, Proceso t1) -> {
@@ -31,42 +59,54 @@ public class ProcesosCreados {
         });
     }
     
-    public void restarEjecutados(){
+    public int restarEjecutados(int ramDisp){
         ArrayList<Proceso> aux = new ArrayList<>();
         for (Proceso proceso : procesosEjecutandose) {
             proceso.restarUnTiempo();
             if(proceso.getTiempo()!=0){
                 aux.add(proceso);
             }
+            else{
+                procesosBorrados.add(proceso);
+                //System.out.println("Ram disponible antes de borrar un proceso: "+ramDisp);
+                //System.out.println("Tamaño Proceso eliminado: "+proceso.getTamanio());
+                ramDisp+=proceso.getTamanio();
+                //System.out.println("Ram disponible despues de borrar: "+ramDisp);
+            }
         }
         procesosEjecutandose.clear();
         for (Proceso proceso : aux) {
             procesosEjecutandose.add(proceso);
         }
-        
+        return ramDisp;
     }
     
     public int agregarProcesosRam(int ram){
         double k=Math.floor(Math.random()*procesosCreados.size());
         int numeroRandom=(int)k;
+        //Cuando el proceso ocupa toda la memoria
         if(procesosCreados.get(numeroRandom).tamanio==ram){
             ram=ram-procesosCreados.get(numeroRandom).getTamanio();
+            System.out.println("Nueva Ram caso1: "+ram);
             procesosEjecutandose.add(procesosCreados.get(numeroRandom));
             procesosCreados.remove(numeroRandom);
             for (Proceso procesosCreado : procesosCreados) {
                 procesosEsperando.add(procesosCreado);
+                if(procesosCreado.getPrioridad()==1){
+                    procesosEspAlta.add(procesosCreado);
+                }
+                else{
+                    procesosEspBaja.add(procesosCreado);
+                }
             }
             procesosCreados.clear();
+            return 0;
         }
-        
+        //Cuando el proceso cabe en la memoria
         else if(procesosCreados.get(numeroRandom).tamanio<ram){
             ram=ram-procesosCreados.get(numeroRandom).getTamanio();
+            System.out.println("Nueva Ram caso 2: "+ram);
             procesosEjecutandose.add(procesosCreados.get(numeroRandom));
-            procesosCreados.remove(numeroRandom);
-            agregarProcesosRam(ram);
-        }
-        else if(procesosCreados.get(numeroRandom).tamanio>ram && ram!=0){
-            procesosEsperando.add(procesosCreados.get(numeroRandom));
             procesosCreados.remove(numeroRandom);
             if(validadProcesosDisp(ram)){
                 agregarProcesosRam(ram);
@@ -75,6 +115,42 @@ public class ProcesosCreados {
                 if(procesosCreados.size()>0){
                     for (Proceso procesosCreado : procesosCreados) {
                         procesosEsperando.add(procesosCreado);
+                        if(procesosCreado.getPrioridad()==1){
+                            procesosEspAlta.add(procesosCreado);
+                        }
+                        else{
+                            procesosEspBaja.add(procesosCreado);
+                        }
+                    }
+                    procesosCreados.clear();
+                }
+                
+                return ram;
+            }
+        }
+        //Queda memoria pero los procesos no caben
+        else if(procesosCreados.get(numeroRandom).tamanio>ram && ram!=0){
+            procesosEsperando.add(procesosCreados.get(numeroRandom));
+            if(procesosCreados.get(numeroRandom).getPrioridad()==1){
+                procesosEspAlta.add(procesosCreados.get(numeroRandom));
+            }
+            else{
+                procesosEspBaja.add(procesosCreados.get(numeroRandom));
+            }
+            procesosCreados.remove(numeroRandom);
+            if(validadProcesosDisp(ram)){
+                agregarProcesosRam(ram);
+            }
+            else{
+                if(procesosCreados.size()>0){
+                    for (Proceso procesosCreado : procesosCreados) {
+                        procesosEsperando.add(procesosCreado);
+                        if(procesosCreado.getPrioridad()==1){
+                            procesosEspAlta.add(procesosCreado);
+                        }
+                        else{
+                            procesosEspBaja.add(procesosCreado);
+                        }
                     }
                     procesosCreados.clear();
                 }
@@ -85,8 +161,7 @@ public class ProcesosCreados {
         else if(ram==0){//ram llena
             return ram;
         }
-        return -1;
-        
+        return 0;
     }
     
     public boolean validadProcesosDisp(int ramDisp){
