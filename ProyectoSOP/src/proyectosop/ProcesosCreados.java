@@ -21,7 +21,11 @@ public class ProcesosCreados {
     ArrayList<Proceso> procesosEspBaja = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosEjecutandose = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosBorrados = new ArrayList<Proceso>();
-    
+    int ramActual=8;
+
+    public int getRamActual() {
+        return ramActual;
+    }
     
     public ArrayList<Proceso> getProcesosCreados() {
         return procesosCreados;
@@ -81,13 +85,13 @@ public class ProcesosCreados {
         return ramDisp;
     }
     
-    public int agregarProcesosRam(int ram){
+    public int agregarProcesosRam(){
         double k=Math.floor(Math.random()*procesosCreados.size());
         int numeroRandom=(int)k;
         //Cuando el proceso ocupa toda la memoria
-        if(procesosCreados.get(numeroRandom).tamanio==ram){
-            ram=ram-procesosCreados.get(numeroRandom).getTamanio();
-            System.out.println("Nueva Ram caso1: "+ram);
+        if(procesosCreados.get(numeroRandom).tamanio==ramActual){
+            ramActual=ramActual-procesosCreados.get(numeroRandom).getTamanio();
+            System.out.println("Nueva Ram caso1: "+ramActual);
             procesosEjecutandose.add(procesosCreados.get(numeroRandom));
             procesosCreados.remove(numeroRandom);
             for (Proceso procesosCreado : procesosCreados) {
@@ -103,13 +107,13 @@ public class ProcesosCreados {
             return 0;
         }
         //Cuando el proceso cabe en la memoria
-        else if(procesosCreados.get(numeroRandom).tamanio<ram){
-            ram=ram-procesosCreados.get(numeroRandom).getTamanio();
-            System.out.println("Nueva Ram caso 2: "+ram);
+        else if(procesosCreados.get(numeroRandom).tamanio<ramActual){
+            ramActual=ramActual-procesosCreados.get(numeroRandom).getTamanio();
+            System.out.println("Nueva Ram caso 2: "+ramActual);
             procesosEjecutandose.add(procesosCreados.get(numeroRandom));
             procesosCreados.remove(numeroRandom);
-            if(validadProcesosDisp(ram)){
-                agregarProcesosRam(ram);
+            if(validadProcesosDisp(ramActual)){
+                agregarProcesosRam();
             }
             else{
                 if(procesosCreados.size()>0){
@@ -125,11 +129,11 @@ public class ProcesosCreados {
                     procesosCreados.clear();
                 }
                 
-                return ram;
+                return 0;
             }
         }
         //Queda memoria pero los procesos no caben
-        else if(procesosCreados.get(numeroRandom).tamanio>ram && ram!=0){
+        else if(procesosCreados.get(numeroRandom).tamanio>ramActual && ramActual!=0){
             procesosEsperando.add(procesosCreados.get(numeroRandom));
             if(procesosCreados.get(numeroRandom).getPrioridad()==1){
                 procesosEspAlta.add(procesosCreados.get(numeroRandom));
@@ -138,8 +142,8 @@ public class ProcesosCreados {
                 procesosEspBaja.add(procesosCreados.get(numeroRandom));
             }
             procesosCreados.remove(numeroRandom);
-            if(validadProcesosDisp(ram)){
-                agregarProcesosRam(ram);
+            if(validadProcesosDisp(ramActual)){
+                agregarProcesosRam();
             }
             else{
                 if(procesosCreados.size()>0){
@@ -154,12 +158,9 @@ public class ProcesosCreados {
                     }
                     procesosCreados.clear();
                 }
-                return ram;
+                return 0;
             }
             
-        }
-        else if(ram==0){//ram llena
-            return ram;
         }
         return 0;
     }

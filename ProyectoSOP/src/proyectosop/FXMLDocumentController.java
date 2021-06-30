@@ -84,7 +84,8 @@ public class FXMLDocumentController implements Initializable {
     private void ejecutar(ActionEvent event) {
         
         if(estadosEjecutar==0){
-            ramDisp=procesos.agregarProcesosRam(ramDisp);
+            procesos.agregarProcesosRam();
+            ramDisp=procesos.getRamActual();
             System.out.println("Ram ACTUAL:"+ramDisp);
             System.out.println("Procesos ejecutandose: ");
             procesos.imprimir(procesos.procesosEjecutandose);
@@ -106,47 +107,64 @@ public class FXMLDocumentController implements Initializable {
         else{
             System.out.println("Ram ACTUAL:"+ramDisp);
             ramDisp=procesos.restarEjecutados(ramDisp);
-            System.out.println("Nuevos procesos ejecutandose: ");
-            procesos.imprimir(procesos.procesosEjecutandose);
-            System.out.println("------------------------");
+            //ramDisp=procesos.getRamActual();
+            
             
             
             //Meter los en espera
-        
+            
             //Si hay un proceso de prioridad alta a la espera,
             if(!procesos.procesosEspAlta.isEmpty()){
                 System.out.println("Hay uno a la espera");
+                int flag=0;
+//                for (Proceso p : procesos.procesosEspAlta) {
+//                    flag=meterAltaEjecutar(p);
+//                    System.out.println("Ram disponible y entre");
+//                    if(flag==1){
+//                        procesos.procesosEspAlta.clear();
+//                        for (Proceso proceso : auxEspAlta) {
+//                            procesos.procesosEspAlta.add(proceso);
+//                        }
+//                        procesos.procesosEsperando.clear();
+//                        for (Proceso proceso : auxEsp) {
+//                            procesos.procesosEsperando.add(proceso);
+//                        }
+//                        auxEsp.clear();
+//                        auxEspAlta.clear();
+//                    }
+//                }
                 
-                for (Proceso p : procesos.procesosEspAlta) {
-                    meterAltaEjecutar(p);
+                
+                int variableCambiante=procesos.procesosEspAlta.size();
+                int x=0;
+                
+                while(x<variableCambiante){
+                    
+                    
+                    flag=meterAltaEjecutar(procesos.procesosEspAlta.get(x));
                     System.out.println("Ram disponible y entre");
-                }
-                procesos.procesosEspAlta.clear();
-                for (Proceso proceso : auxEspAlta) {
-                    procesos.procesosEspAlta.add(proceso);
-                }
-                procesos.procesosEsperando.clear();
-                for (Proceso proceso : auxEsp) {
-                    procesos.procesosEsperando.add(proceso);
-                }
-                auxEsp.clear();
-                auxEspAlta.clear();
-                
-                /*
-                for (Proceso ejecutando : procesos.procesosEjecutandose) {
-                    if(ejecutando.getPrioridad()==0){//Si existe un proceso de prioridad baja ejecutandose
-                        if(ejecutando.getTamanio()>=procesos.procesosEspAlta.get(0).getTamanio()){
-                            //Hacemos swap de los procesos en espera y ejecutando
-                            Proceso procesoIn = procesos.procesosEspAlta.get(0);
-                            Proceso procesoOut = ejecutando;
-                            procesos.procesosEjecutandose.remove(ejecutando);
-                            
+                    if(flag==1){
+                        
+                        procesos.procesosEspAlta.clear();
+                        for (Proceso proceso : auxEspAlta) {
+                            procesos.procesosEspAlta.add(proceso);
                         }
+                        procesos.procesosEsperando.clear();
+                        for (Proceso proceso : auxEsp) {
+                            procesos.procesosEsperando.add(proceso);
+                        }
+                        auxEsp.clear();
+                        auxEspAlta.clear();
+                        variableCambiante=procesos.procesosEspAlta.size();
                     }
-                }*/
+                    x++;
+                }
+                
             }
             //si hay un proceso de prioridad baja ese cumple un ciclo y se sale, restandole a su tiempo
-
+            System.out.println("Nuevos procesos ejecutandose: ");
+            procesos.imprimir(procesos.procesosEjecutandose);
+            System.out.println("------------------------");
             System.out.println("Nuevos procesos esperando: ");
             procesos.imprimir(procesos.procesosEsperando);
             System.out.println("------------------------");
@@ -159,22 +177,23 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    public void meterAltaEjecutar(Proceso p){
-        System.out.println("ram disponible: "+ramDisp);
-        System.out.println("Tamaño proceso nuevo: "+p.getTamanio());
+    public int meterAltaEjecutar(Proceso p){
+        int flag=0;
+        
         if(ramDisp>=p.getTamanio()){
-            
+            System.out.println("ram disponible: "+ramDisp);
+            System.out.println("Tamaño proceso nuevo: "+p.getTamanio());
+            flag=1;
             //Se agrega el proceso en espera a la ejecucion
             procesos.procesosEjecutandose.add(p);
+            procesos.imprimir(procesos.procesosEjecutandose);
             //Lo eliminamos de los procesos en espera alta
-            //procesos.procesosEspAlta.remove(p);
             for (int i=0;i<procesos.procesosEspAlta.size();i++) {
                 if(!procesos.procesosEspAlta.get(i).getNombre().equals(p.getNombre())){
                     auxEspAlta.add(procesos.procesosEspAlta.get(i));
                 }
             }
             //Lo eliminamos de los procesos en espera general
-            //procesos.procesosEsperando.remove(p);
             for (int i=0;i<procesos.procesosEsperando.size();i++) {
                 if(!procesos.procesosEsperando.get(i).getNombre().equals(p.getNombre())){
                     auxEsp.add(procesos.procesosEsperando.get(i));
@@ -190,7 +209,12 @@ public class FXMLDocumentController implements Initializable {
             ramDisp = ramDisp - p.getTamanio();
             //agregarProcesosRam();
             pintarEncima(p);
+            procesos.procesosBorrados.clear();
         }
+        else{
+            System.out.println("No pude entrar");
+        }
+        return flag;
     }
     
     public void pintarEncima(Proceso p){
@@ -205,11 +229,10 @@ public class FXMLDocumentController implements Initializable {
                     prioridadT="Alta";
                 }
                 String comparacion = " "+procesos.procesosBorrados.get(j).getNombre()+" Prioridad: "+prioridadT;
-                System.out.println("ej: "+comparacion);
+            
                 
                 String[] pizzaraCortada = pizarra[i].split(" Tiempo");
                 String part1 = pizzaraCortada[0];
-                System.out.println("parte1: "+part1);
                 if(comparacion.equals(part1)){
                     pizarra[i]="0";
                 }
@@ -237,33 +260,12 @@ public class FXMLDocumentController implements Initializable {
         }
         
         for (int i = 0; i < 8; i++) {
-            memoriaRam.add(new Text(pizarra[i]),0,i);
-        }
-        
-        
-    }
-    
-    
-    private Node getNodeFromGridPane(GridPane gridPane, int col, int row) {
-        ObservableList<Node> children = gridPane.getChildren();
-        for (Node node : children) {
-            Integer columnIndex = GridPane.getColumnIndex(node);
-            Integer rowIndex = GridPane.getRowIndex(node);
-
-            if (columnIndex == null)
-                columnIndex = 0;
-            if (rowIndex == null)
-                rowIndex = 0;
-
-            if (columnIndex == col && rowIndex == row) {
-                return node;
+            if(!pizarra[i].equals("0")){
+                memoriaRam.add(new Text(pizarra[i]),0,i);
             }
         }
-        return null;
+        
     }
-    
-    
-    
     
     public void agregarProcesosAlmacen(){
         for (Proceso p : procesos.procesosEsperando) {
