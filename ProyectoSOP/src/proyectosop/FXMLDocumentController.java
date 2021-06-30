@@ -50,7 +50,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Button crear;
     
-    String[] pizarra = {"0","0","0","0","0","0","0","0"};
+    static String[] pizarra = {"0","0","0","0","0","0","0","0"};
     int fila=0;
     int ramDisp=8;
     int estadosEjecutar=0;
@@ -117,29 +117,10 @@ public class FXMLDocumentController implements Initializable {
             if(!procesos.procesosEspAlta.isEmpty()){
                 System.out.println("Hay uno a la espera");
                 int flag=0;
-//                for (Proceso p : procesos.procesosEspAlta) {
-//                    flag=meterAltaEjecutar(p);
-//                    System.out.println("Ram disponible y entre");
-//                    if(flag==1){
-//                        procesos.procesosEspAlta.clear();
-//                        for (Proceso proceso : auxEspAlta) {
-//                            procesos.procesosEspAlta.add(proceso);
-//                        }
-//                        procesos.procesosEsperando.clear();
-//                        for (Proceso proceso : auxEsp) {
-//                            procesos.procesosEsperando.add(proceso);
-//                        }
-//                        auxEsp.clear();
-//                        auxEspAlta.clear();
-//                    }
-//                }
-                
-                
                 int variableCambiante=procesos.procesosEspAlta.size();
                 int x=0;
                 
                 while(x<variableCambiante){
-                    
                     
                     flag=meterAltaEjecutar(procesos.procesosEspAlta.get(x));
                     System.out.println("Ram disponible y entre");
@@ -161,6 +142,8 @@ public class FXMLDocumentController implements Initializable {
                 }
                 
             }
+            repintar();
+            
             //si hay un proceso de prioridad baja ese cumple un ciclo y se sale, restandole a su tiempo
             System.out.println("Nuevos procesos ejecutandose: ");
             procesos.imprimir(procesos.procesosEjecutandose);
@@ -171,7 +154,7 @@ public class FXMLDocumentController implements Initializable {
             System.out.println("Nuevos procesos esperando alta: ");
             procesos.imprimir(procesos.procesosEspAlta);
             System.out.println("------------------------");
-
+            
             //Si hay solo procesos de prioridad alta se elige el primero que se encuentra
             //si hay solo procesos de prioridad baja cumplen su iteracion y luego entran los otros de baja
         }
@@ -217,6 +200,21 @@ public class FXMLDocumentController implements Initializable {
         return flag;
     }
     
+    public void repintar(){
+        Node node = memoriaRam.getChildren().get(0); 
+        memoriaRam.getChildren().clear(); 
+        memoriaRam.getChildren().add(0,node); 
+        for (int i = 0; i < 8; i++) {
+            if(!pizarra[i].equals("0")){
+                memoriaRam.add(new Text(pizarra[i]),0,i);
+            }
+            else{
+                
+                memoriaRam.add(new Text(),0,i);
+            }
+        }
+    }
+    
     public void pintarEncima(Proceso p){
         
         for (int i = 0; i < 8; i++) {
@@ -230,7 +228,7 @@ public class FXMLDocumentController implements Initializable {
                 }
                 String comparacion = " "+procesos.procesosBorrados.get(j).getNombre()+" Prioridad: "+prioridadT;
             
-                
+                //Comparamos los que son iguales al que se necesita borrar
                 String[] pizzaraCortada = pizarra[i].split(" Tiempo");
                 String part1 = pizzaraCortada[0];
                 if(comparacion.equals(part1)){

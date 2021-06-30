@@ -8,6 +8,8 @@ package proyectosop;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import javafx.scene.text.Text;
+import static proyectosop.FXMLDocumentController.pizarra;
 
 /**
  *
@@ -70,7 +72,32 @@ public class ProcesosCreados {
             if(proceso.getTiempo()!=0){
                 aux.add(proceso);
             }
+            //Si el tiempo es igual a 0
             else{
+                
+                
+                //FXMLDocumentController.pizarra[0]="ss";
+                for (int i = 0; i < 8; i++) {
+                    String prioridadT="";
+                    if(proceso.getPrioridad()==0){
+                         prioridadT="Baja";
+                    }
+                    else{
+                        prioridadT="Alta";
+                    }
+                    String comparacion = " "+proceso.getNombre()+" Prioridad: "+prioridadT;
+                    String[] pizzaraCortada = FXMLDocumentController.pizarra[i].split(" Tiempo");
+                    String part1 = pizzaraCortada[0];
+                    if(comparacion.equals(part1)){
+                        FXMLDocumentController.pizarra[i]="0";
+                    }
+                    for (int j = 0; j < 8; j++) {
+                        System.out.println(FXMLDocumentController.pizarra[j]);
+                    }
+                }
+                
+                
+                
                 procesosBorrados.add(proceso);
                 //System.out.println("Ram disponible antes de borrar un proceso: "+ramDisp);
                 //System.out.println("Tamaño Proceso eliminado: "+proceso.getTamanio());
