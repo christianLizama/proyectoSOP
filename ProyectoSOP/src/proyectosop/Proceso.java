@@ -28,6 +28,14 @@ public class Proceso {
     public void restarUnTiempo(){
         tiempo--;
     }
+    public String obtenerPrioridad(){
+        if(prioridad==0){
+            return "Baja";
+        }
+        else{
+            return "Alta";
+        }
+    }
     
     public Proceso(String nombre, int prioridad, int tamanio, int tiempo) {
         this.nombre = nombre;
