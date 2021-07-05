@@ -128,7 +128,11 @@ public class FXMLDocumentController implements Initializable {
                     }
                     auxEsp.clear();
                     auxEspAlta.clear();
-                   marca=1;
+                    marca=1;
+                }
+                //Si hace un swaping la flag es 2 y dejamos la marca para que no se agreguen mas procesos
+                else if(flag==2){
+                    marca=1;
                 }
                 
             }
@@ -138,7 +142,6 @@ public class FXMLDocumentController implements Initializable {
             
             repintarEspera();
             repintarRam();
-            
             //si hay un proceso de prioridad baja ese cumple un ciclo y se sale, restandole a su tiempo
             System.out.println("Nuevos procesos ejecutandose: ");
             procesos.imprimir(procesos.procesosEjecutandose);
@@ -149,12 +152,28 @@ public class FXMLDocumentController implements Initializable {
             System.out.println("Nuevos procesos esperando alta: ");
             procesos.imprimir(procesos.procesosEspAlta);
             System.out.println("------------------------");
-            
-            //Si hay solo procesos de prioridad alta se elige el primero que se encuentra
-            //si hay solo procesos de prioridad baja cumplen su iteracion y luego entran los otros de baja
+        }
+        //recorrer procesos ejecutandose y guardar en la pizara
+        actualizarPizarra();
+        repintarRam();
+    }
+    //Actualizamos la pizarra con los tiempos actuales de cada proceso en ejecucion
+    public void actualizarPizarra(){
+        for (Proceso p : procesos.procesosEjecutandose) {
+            for (int i = 0; i < 8; i++) {
+                String comparacion = " "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad();
+                //Comparamos los que son iguales al que se necesita borrar
+                String[] pizzaraCortada = pizarra[i].split(" Tiempo");
+                String part1 = pizzaraCortada[0];
+                if(comparacion.equals(part1)){
+                    pizarra[i]=" "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo();
+                }
+            }
         }
     }
     
+    
+    //Buscamos si hay un proceso que cabe en la memoria ram
     public int buscarProcesoDisp(ArrayList<Proceso> procesosx){
         for (int i = 0; i < procesosx.size(); i++) {
             if(procesosx.get(i).getTamanio()<=ramDisp){
@@ -163,10 +182,10 @@ public class FXMLDocumentController implements Initializable {
         }
         return -1;
     }
-    
+    //Metemos un proceso de prioridad baja en caso de que sea posible
     public void meterBajaEjecutar(){
-        
         int posProceso = buscarProcesoDisp(procesos.procesosEspBaja);
+        //Revisamos si es posible introducir un proceso de prioridad baja que tenga espacio para entrar
         if(posProceso!=-1){
             Proceso p = procesos.procesosEspBaja.get(posProceso);
             int tamanioP = p.getTamanio();
@@ -176,29 +195,29 @@ public class FXMLDocumentController implements Initializable {
                     tamanioP--;
                 }
             }
-            procesos.procesosEsperando.remove(p);
-            procesos.procesosEspBaja.remove(p);
-            procesos.procesosEjecutandose.add(p);
-            ramDisp = ramDisp - p.getTamanio();
-            
+            procesos.procesosEsperando.remove(p);//Quitamos el proceso de los procesos en espera generales
+            procesos.procesosEspBaja.remove(p);//Quitamos el proceso de los procesos en espera de prioridad baja
+            procesos.procesosEjecutandose.add(p);//Agregamos el nuevo proceso en los procesos que se encuentran ejecutandose
+            ramDisp = ramDisp - p.getTamanio();//Actualizamos la ram disponible segun lo que utiliza el nuevo proceso
         }
     }
     
-    //Metemos un alta en ejecucion cuando hay espacio disponible
+    //Metemos un proceso de prioridad alta en ejecucion cuando hay espacio disponible
     public int meterAltaEjecutar(){
         int flag=0;
         int posProceso = buscarProcesoDisp(procesos.procesosEspAlta);
         
-        //Si es distinto lo metemos de manera normal
+        //Si se comprueba que hay espacios disponibles puede entrar
         if(posProceso!=-1){
             Proceso p = procesos.procesosEspAlta.get(posProceso);
             System.out.println("ram disponible: "+ramDisp);
             System.out.println("Tamaño proceso nuevo: "+p.getTamanio());
             flag=1;
-            //Se agrega el proceso en espera a la ejecucion
+            //Se agrega el proceso de prioridad alta en espera a la ejecucion (ram)
             procesos.procesosEjecutandose.add(p);
             procesos.imprimir(procesos.procesosEjecutandose);
-            //Lo eliminamos de los procesos en espera alta
+            
+            //Lo eliminamos de los procesos en espera de priorirdad alta
             for (int i=0;i<procesos.procesosEspAlta.size();i++) {
                 if(!procesos.procesosEspAlta.get(i).getNombre().equals(p.getNombre())){
                     auxEspAlta.add(procesos.procesosEspAlta.get(i));
@@ -213,18 +232,18 @@ public class FXMLDocumentController implements Initializable {
             Node node = memoriaRam.getChildren().get(0); 
             memoriaRam.getChildren().clear(); 
             memoriaRam.getChildren().add(0,node); 
-            ramDisp = ramDisp - p.getTamanio();
+            ramDisp = ramDisp - p.getTamanio();//Marcamos ocupada la ram que utilizo el nuevo proceso
             //agregarProcesosRam();
             pintarEncimaBorrados(p);
             //repintarEspera();
             procesos.procesosBorrados.clear();
         }
-        //De lo contrario intentamos realizar swapping
-        //Hay un proceso de alta en espera y uno baja en ejecucion (swapping)
+        //De lo contrario al caso anterior intentamos realizar un swapping
+        //Hay un proceso de alta en espera y uno baja en ejecucion el cual puede ceder su lugar(swapping)
         else{
-            //flag=1;
             int resultadoSwap=intentoSwap();
             if(resultadoSwap==1){
+                flag=2;
                 System.out.println("Se pudo realizar el swap");
             }
             else{
@@ -281,10 +300,10 @@ public class FXMLDocumentController implements Initializable {
 //                System.out.println("No pude entrar");
 //            }
         //}
-        
         return flag;
     }
     
+    //Metodo que se encarga de intentar realizar el swapping
     public int intentoSwap(){
         
         int i=0;
@@ -292,11 +311,10 @@ public class FXMLDocumentController implements Initializable {
         int estado=0;
         
         while(i<tamannio){
-            
+            //Revisamos que exista un proceso que permita realizar un swapping
             if(revisarEjecucion(procesos.procesosEspAlta.get(i))!=-1){
-                int procesoOut=revisarEjecucion(procesos.procesosEspAlta.get(i));
-                Proceso procesoInt=procesos.procesosEspAlta.get(i);
-                
+                int procesoOut=revisarEjecucion(procesos.procesosEspAlta.get(i));//Obtenemos el proceso que entrara al almacen
+                Proceso procesoInt=procesos.procesosEspAlta.get(i);//Obtenemos el proceso que entrara a la memoria
                 Proceso pOut=procesos.procesosEjecutandose.get(procesoOut);//Lo guardamos en un aux
                 procesos.procesosEjecutandose.remove(procesoOut);//Lo eliminamos de los procesos ejecutandose
                 procesos.procesosEjecutandose.add(procesoInt);//Agregamos el proceso de alta a la ejecucion
@@ -304,17 +322,19 @@ public class FXMLDocumentController implements Initializable {
                 procesos.procesosEspBaja.add(pOut);//Agregamos al proceso a la espera baja
                 procesos.procesosEsperando.remove(procesoInt);//Eliminamos el proceso de alta de la espera
                 procesos.procesosEspAlta.remove(procesoInt);//Eliminamos el proceso de la espera alta
-                pintarSwapping(pOut, procesoInt);
+                pintarSwapping(pOut, procesoInt);//Pintamos el cambio realizado en la matriz
+                //Actualizamos la ram segun el tamaño del nuevo proceso que entro
                 ramDisp=ramDisp+pOut.getTamanio();
                 ramDisp=ramDisp-procesoInt.getTamanio();
                 estado=1;
-                break;
+                break;//Salimos del ciclo ya que solo se efectua el swapping una vez por tiempo
             }
             i++;
         }
         return estado;
     }
     
+    //Nos permite revisar si existe un proceso de prioridad baja que ceda su lugar para el swapping
     public int revisarEjecucion(Proceso p){
         int tamanio=procesos.procesosEjecutandose.size();
         int k=0;
@@ -330,9 +350,8 @@ public class FXMLDocumentController implements Initializable {
         }
         return -1;
     }
-    
+    //Repintamos la memoria ram en caso de que exita un cambio
     public void repintarRam(){
-        
         Node node = memoriaRam.getChildren().get(0); 
         memoriaRam.getChildren().clear(); 
         memoriaRam.getChildren().add(0,node); 
@@ -345,7 +364,7 @@ public class FXMLDocumentController implements Initializable {
             }
         }
     }
-    
+    //Repintamos el almacen de respaldo en caso de que exista un cambio
     public void repintarEspera(){
         Node node = procesosEnEspera.getChildren().get(0); 
         procesosEnEspera.getChildren().clear(); 
@@ -356,7 +375,7 @@ public class FXMLDocumentController implements Initializable {
             procesosEnEspera.add(new Text(procesosString), 0, i);
         }
     }
-    
+    //Pintamos la matriz de la memoria ram cuando se realiza un swapping
     public void pintarSwapping(Proceso out, Proceso in){
         
         int ProcesoTamannio=in.getTamanio();
@@ -394,8 +413,7 @@ public class FXMLDocumentController implements Initializable {
         repintarRam();
         repintarEspera();
     }
-    
-    
+    //Pintamos encima de un proceso que fue eliminado
     public void pintarEncimaBorrados(Proceso p){
         
         for (int i = 0; i < 8; i++) {
@@ -411,12 +429,12 @@ public class FXMLDocumentController implements Initializable {
             }
         }
         
-        for (int i = 0; i < 8; i++) {
-            System.out.println(pizarra[i]);
-        }
-        
+//        for (int i = 0; i < 8; i++) {
+//            System.out.println(pizarra[i]);
+//        }
         
         int cantidadP=p.getTamanio();
+        
         for (int i = 0; i < 8; i++) {
             if(pizarra[i]=="0" && cantidadP>0){
                 pizarra[i]=" "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo();

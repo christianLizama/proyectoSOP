@@ -23,6 +23,7 @@ public class ProcesosCreados {
     ArrayList<Proceso> procesosEspBaja = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosEjecutandose = new ArrayList<Proceso>();
     ArrayList<Proceso> procesosBorrados = new ArrayList<Proceso>();
+    
     int ramActual=8;
 
     public int getRamActual() {
@@ -75,7 +76,6 @@ public class ProcesosCreados {
             //Si el tiempo es igual a 0
             else{
                 
-                
                 //FXMLDocumentController.pizarra[0]="ss";
                 for (int i = 0; i < 8; i++) {
                     String prioridadT="";
@@ -111,7 +111,7 @@ public class ProcesosCreados {
         }
         return ramDisp;
     }
-    
+    //Agregamos los procesos a la memoria Ram
     public int agregarProcesosRam(){
         double k=Math.floor(Math.random()*procesosCreados.size());
         int numeroRandom=(int)k;
