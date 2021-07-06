@@ -11,6 +11,7 @@ package proyectosop;
  * @author Diego Aguilera
  */
 public class Proceso {
+    
     String nombre;
     int prioridad;
     int tamanio;

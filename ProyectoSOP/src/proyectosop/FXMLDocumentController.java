@@ -51,6 +51,7 @@ public class FXMLDocumentController implements Initializable {
     private Button crear;
     
     static String[] pizarra = {"0","0","0","0","0","0","0","0"};
+    
     int fila=0;
     int ramDisp=8;
     int estadosEjecutar=0;
@@ -69,7 +70,7 @@ public class FXMLDocumentController implements Initializable {
         // TODO
         prioridad.getItems().add("Baja");
         prioridad.getItems().add("Alta");
-        
+        Ejecutar.setDisable(true);
         for(int i=0; i<8;i++){
             tamanno.getItems().add(i+1+"");
         }
@@ -172,7 +173,6 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    
     //Buscamos si hay un proceso que cabe en la memoria ram
     public int buscarProcesoDisp(ArrayList<Proceso> procesosx){
         for (int i = 0; i < procesosx.size(); i++) {
@@ -251,55 +251,6 @@ public class FXMLDocumentController implements Initializable {
             }
         }
         
-//        if(posProceso!=-1){
-//            Proceso p = procesos.procesosEspAlta.get(posProceso);
-//            if(ramDisp>=p.getTamanio()){
-//                System.out.println("ram disponible: "+ramDisp);
-//                System.out.println("Tamaño proceso nuevo: "+p.getTamanio());
-//                flag=1;
-//                //Se agrega el proceso en espera a la ejecucion
-//                procesos.procesosEjecutandose.add(p);
-//                procesos.imprimir(procesos.procesosEjecutandose);
-//                //Lo eliminamos de los procesos en espera alta
-//                for (int i=0;i<procesos.procesosEspAlta.size();i++) {
-//                    if(!procesos.procesosEspAlta.get(i).getNombre().equals(p.getNombre())){
-//                        auxEspAlta.add(procesos.procesosEspAlta.get(i));
-//                    }
-//                }
-//                //Lo eliminamos de los procesos en espera general
-//                for (int i=0;i<procesos.procesosEsperando.size();i++) {
-//                    if(!procesos.procesosEsperando.get(i).getNombre().equals(p.getNombre())){
-//                        auxEsp.add(procesos.procesosEsperando.get(i));
-//                    }
-//                }
-//                Node node = memoriaRam.getChildren().get(0); 
-//                memoriaRam.getChildren().clear(); 
-//                memoriaRam.getChildren().add(0,node); 
-//                ramDisp = ramDisp - p.getTamanio();
-//                //agregarProcesosRam();
-//                pintarEncimaBorrados(p);
-//                //repintarEspera();
-//                procesos.procesosBorrados.clear();
-//            }
-//            //Hay un proceso de alta en espera y uno baja en ejecucion (swapping)
-//            else if(revisarEjecucion(p)!=-1){
-//                //flag=1;
-//                int procesoOut=revisarEjecucion(p);
-//                Proceso pOut=procesos.procesosEjecutandose.get(procesoOut);//Lo guardamos en un aux
-//                procesos.procesosEjecutandose.remove(procesoOut);//Lo eliminamos de los procesos ejecutandose
-//                procesos.procesosEjecutandose.add(p);//Agregamos el proceso de alta a la ejecucion
-//                procesos.procesosEsperando.add(pOut);//Agregamos el proceso a la espera
-//                procesos.procesosEspBaja.add(pOut);//Agregamos al proceso a la espera baja
-//                procesos.procesosEsperando.remove(p);//Eliminamos el proceso de la espera
-//                procesos.procesosEspAlta.remove(p);//Eliminamos el proceso de la espera alta
-//                pintarSwapping(pOut, p);
-//
-//            }
-//            //aqui si hay uno de baja tenemos que hacer que lo mande al almacen y que entre de igual manera
-//            else{
-//                System.out.println("No pude entrar");
-//            }
-        //}
         return flag;
     }
     
@@ -428,11 +379,7 @@ public class FXMLDocumentController implements Initializable {
                 }
             }
         }
-        
-//        for (int i = 0; i < 8; i++) {
-//            System.out.println(pizarra[i]);
-//        }
-        
+
         int cantidadP=p.getTamanio();
         
         for (int i = 0; i < 8; i++) {
@@ -490,6 +437,7 @@ public class FXMLDocumentController implements Initializable {
             fila++;
             
             procesos.procesosCreados.add(p);
+            Ejecutar.setDisable(false);
             //p.Imprimir();
         }
     }
