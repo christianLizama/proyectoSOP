@@ -26,6 +26,10 @@ public class ProcesosCreados {
     
     int ramActual=8;
 
+    public void setRamActual(int ramActual) {
+        this.ramActual = ramActual;
+    }
+
     public int getRamActual() {
         return ramActual;
     }
@@ -91,9 +95,9 @@ public class ProcesosCreados {
                     if(comparacion.equals(part1)){
                         FXMLDocumentController.pizarra[i]="0";
                     }
-                    for (int j = 0; j < 8; j++) {
-                        System.out.println(FXMLDocumentController.pizarra[j]);
-                    }
+//                    for (int j = 0; j < 8; j++) {
+//                        System.out.println(FXMLDocumentController.pizarra[j]);
+//                    }
                 }
                 
                 

@@ -87,6 +87,7 @@
             </GridPane>
          </content>
       </TitledPane>
-      <Button fx:id="Ejecutar" layoutX="397.0" layoutY="627.0" onAction="#ejecutar" prefHeight="25.0" prefWidth="187.0" text="Ejecutar" />
+      <Button fx:id="Ejecutar" layoutX="280.0" layoutY="622.0" onAction="#ejecutar" prefHeight="25.0" prefWidth="187.0" text="Ejecutar" />
+      <Button fx:id="Limpiar" layoutX="513.0" layoutY="622.0" mnemonicParsing="false" onAction="#LimpiarTodo" prefHeight="25.0" prefWidth="187.0" text="Limpiar Todo" />
     </children>
 </AnchorPane>

@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -64,10 +65,17 @@ public class FXMLDocumentController implements Initializable {
     private GridPane listaCreados;
     @FXML
     private GridPane memoriaRam;
+    @FXML
+    private Button Limpiar;
+
+    public static void setPizarra(String[] pizarra) {
+        FXMLDocumentController.pizarra = pizarra;
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        Limpiar.setDisable(true);
         prioridad.getItems().add("Baja");
         prioridad.getItems().add("Alta");
         Ejecutar.setDisable(true);
@@ -85,6 +93,7 @@ public class FXMLDocumentController implements Initializable {
     private void ejecutar(ActionEvent event) {
         
         if(estadosEjecutar==0){
+            Limpiar.setDisable(false);
             procesos.agregarProcesosRam();
             ramDisp=procesos.getRamActual();
             System.out.println("Ram ACTUAL:"+ramDisp);
@@ -106,6 +115,9 @@ public class FXMLDocumentController implements Initializable {
             
         }
         else{
+            restarTiempoProcesosEsp(procesos.procesosEsperando);
+            //restarTiempoProcesosEsp(procesos.procesosEspAlta);
+            //restarTiempoProcesosEsp(procesos.procesosEspBaja);
             System.out.println("Ram ACTUAL:"+ramDisp);
             ramDisp=procesos.restarEjecutados(ramDisp);
             //ramDisp=procesos.getRamActual();
@@ -135,7 +147,6 @@ public class FXMLDocumentController implements Initializable {
                 else if(flag==2){
                     marca=1;
                 }
-                
             }
             if(!procesos.procesosEspBaja.isEmpty() && marca==0){
                 meterBajaEjecutar();
@@ -158,6 +169,30 @@ public class FXMLDocumentController implements Initializable {
         actualizarPizarra();
         repintarRam();
     }
+    
+    //Metodo para restar 1 tiempo a los procesos que estan en el almacen de respaldo
+    public void restarTiempoProcesosEsp(ArrayList<Proceso> procesosEspX){
+        int tamanioArray=procesosEspX.size();
+        int i=0, tiempo=0;
+        while(i<tamanioArray){
+            tiempo = procesosEspX.get(i).getTiempo();
+            procesosEspX.get(i).setTiempo(tiempo-1);
+            if(procesosEspX.get(i).getTiempo()==0){//Tiempo actual es igual a 0
+                if(procesosEspX.get(i).getPrioridad()==1){
+                    procesos.procesosEspAlta.remove(procesosEspX.get(i));
+                }
+                else{
+                    procesos.procesosEspBaja.remove(procesosEspX.get(i));
+                }
+                procesosEspX.remove(i);
+                tamanioArray--;
+            }
+            i++;
+        }
+    }
+            
+            
+            
     //Actualizamos la pizarra con los tiempos actuales de cada proceso en ejecucion
     public void actualizarPizarra(){
         for (Proceso p : procesos.procesosEjecutandose) {
@@ -320,11 +355,19 @@ public class FXMLDocumentController implements Initializable {
         Node node = procesosEnEspera.getChildren().get(0); 
         procesosEnEspera.getChildren().clear(); 
         procesosEnEspera.getChildren().add(0,node); 
-        for (int i = 0; i < procesos.procesosEsperando.size(); i++) {
-            Proceso p = procesos.procesosEsperando.get(i);
-            String procesosString = " "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo();
-            procesosEnEspera.add(new Text(procesosString), 0, i);
+        if(procesos.procesosEsperando.size()>0){
+            for (int i = 0; i < procesos.procesosEsperando.size(); i++) {
+                Proceso p = procesos.procesosEsperando.get(i);
+                String procesosString = " "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo();
+                procesosEnEspera.add(new Text(procesosString), 0, i);
+            }
         }
+        else{
+            for (int i = 0; i < 10; i++) {
+                procesosEnEspera.add(new Text(),0,i);
+            }
+        }
+        
     }
     //Pintamos la matriz de la memoria ram cuando se realiza un swapping
     public void pintarSwapping(Proceso out, Proceso in){
@@ -418,27 +461,91 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
+    //Impide crear procesos con el mismo nombre
+    public boolean verificarNombre(String nombre){
+
+        for (Proceso proceso : procesos.procesosCreados) {
+            if(proceso.getNombre().equals(nombre)){
+                return true;
+            }
+        }
+    
+        return false;
+    }
+    
+    
     @FXML
     private void crearProceso(ActionEvent event) {
         
         if(prioridad.getValue()!=null && tamanno.getValue()!=null && tiempo.getValue()!=null && !nombre.getText().equals("")){
-            System.out.println("Proceso creado");
-            String aux=prioridad.getValue();
-            int prioridadP=0;
-            if(aux.equals("Alta")){
-                prioridadP=1;
-            }
-            aux=tamanno.getValue();
-            int tamanioP=Integer.parseInt(aux);
-            aux=tiempo.getValue();
-            int tiempoP=Integer.parseInt(aux);
-            Proceso p = new Proceso(nombre.getText(),prioridadP,tamanioP,tiempoP);
-            listaCreados.add(new Text(" "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo()), 0, fila);
-            fila++;
             
-            procesos.procesosCreados.add(p);
-            Ejecutar.setDisable(false);
+            if(verificarNombre(nombre.getText())){
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText(null);
+                alert.setTitle("Error");
+                alert.setContentText("Error en la creación de un proceso, debe ingresar un nombre diferente a los ya creados");
+                alert.showAndWait();
+            }
+            else{
+                System.out.println("Proceso creado");
+                String aux=prioridad.getValue();
+                int prioridadP=0;
+                if(aux.equals("Alta")){
+                    prioridadP=1;
+                }
+                aux=tamanno.getValue();
+                int tamanioP=Integer.parseInt(aux);
+                aux=tiempo.getValue();
+                int tiempoP=Integer.parseInt(aux);
+                Proceso p = new Proceso(nombre.getText(),prioridadP,tamanioP,tiempoP);
+                listaCreados.add(new Text(" "+p.getNombre()+" Prioridad: "+p.obtenerPrioridad()+" Tiempo: "+p.getTiempo()), 0, fila);
+                fila++;
+
+                procesos.procesosCreados.add(p);
+                Ejecutar.setDisable(false);
+                
+            }
+            
             //p.Imprimir();
         }
+        else{
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setHeaderText(null);
+            alert.setTitle("Error");
+            alert.setContentText("Error en la creación de un proceso, debe ingresar todos los datos");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void LimpiarTodo(ActionEvent event) {
+        estadosEjecutar=0;
+        Ejecutar.setDisable(true);
+        crear.setDisable(false);
+        procesos.procesosBorrados.clear();
+        procesos.procesosCreados.clear();
+        procesos.procesosEjecutandose.clear();
+        procesos.procesosEspAlta.clear();
+        procesos.procesosEspBaja.clear();
+        procesos.procesosEsperando.clear();
+        ramDisp=8;
+        
+        String [] pizarraNew = {"0","0","0","0","0","0","0","0"};
+        setPizarra(pizarraNew);
+        repintarRam();
+        repintarEspera();
+        fila=0;
+        ramDisp=8;
+        estadosEjecutar=0;
+        filaEspera=0;
+        procesos.setRamActual(8);
+        //procesosEnEspera.setStyle("-fx-grid-lines-visible");
+        Node node2 = procesosEnEspera.getChildren().get(0);
+        procesosEnEspera.getChildren().clear();
+        procesosEnEspera.getChildren().add(node2);
+        Node node = listaCreados.getChildren().get(0);
+        listaCreados.getChildren().clear();
+        listaCreados.getChildren().add(0,node);
+        Limpiar.setDisable(true);
     }
 }
